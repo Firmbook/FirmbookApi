@@ -1,6 +1,5 @@
 <?php
 require_once 'Firmbook/Command/Result.php';
-require_once 'Firmbook/Command/Error.php';
 require_once 'Firmbook/Ticket.php';
 require_once 'Firmbook/Query.php';
 require_once 'Firmbook/Command.php';

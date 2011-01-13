@@ -36,11 +36,10 @@ class Firmbook_Query {
 			$request->setAuth($this->publicKey, $this->getSignature($this->query.'?$top='.$this->top.'&$skip='.$this->skip), HTTP_Request2::AUTH_BASIC);
 			$request->setHeader($headers);
 			$response = $request->send();
-			if ($response->getStatus() != 200)
-				throw new Exception($response->getReasonPhrase(), $response->getStatus());
-			return new Firmbook_Command_Result($response->getBody());			
+			return new Firmbook_Command_Result(
+					$response->getStatus(), $response->getReasonPhrase(), $response->getBody());
 		} catch (Exception $e) {
-			return new Firmbook_Command_Error($e->getCode(), $e->getMessage());			
+			return new Firmbook_Command_Result($e->getCode(), $e->getMessage());			
 		}
 	}
 }

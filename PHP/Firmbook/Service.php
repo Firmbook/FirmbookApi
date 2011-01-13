@@ -40,7 +40,7 @@ class Firmbook_Service {
 	 *									Фирмбук, приглашенных на вебинар
 	 *								coHostIds - Массив строк с идентификаторами пользователей
 	 *									Фирмбук, соведущих этого вебинара
-	 * @return Firmbook_Command_Result 
+	 * @return Firmbook_Command_Result Результат выполнения команды
 	 */
 	public function createConference(array $conferenceData) {
 		$this->checkRequiredValue($conferenceData, "title", Firmbook_Service::TYPE_STRING, 3, 255);
@@ -60,12 +60,31 @@ class Firmbook_Service {
 	}
 	
 	/**	
-	 * Обновить список гостей вебинара
+	 * Обновить список гостей вебинара.
+	 *		Должны быть переданы ВСЕ запросы на билеты, в том числе которые были
+	 *		зарегистрированы ранее. Если вы хотите убрать билеты, то надо просто 
+	 *		не передавать билет в параметры.
+	 * Например, если вы хотите добавить трех пользователей требуется вызвать:
+	 *		$fb->updateGuestTickets($id, array(
+	 *			Firmbook_Ticket::newTicket('Первый пользователь', 1),
+	 *			Firmbook_Ticket::newTicket('Второй пользователь', 2),
+	 *			Firmbook_Ticket::newTicket('Третий пользователь', 3),
+	 *		));
+	 * Например, если вы хотите добавить еще двух пользователей:
+	 *		$ticketId1, $ticketId2, $ticketId3 - Id билетов полученных с Фирмбук
+	 *			c помощью getTickets
+	 *		$fb->updateGuestTickets($id, array(
+	 *			Firmbook_Ticket::existingTicket('Первый пользователь', 1, $ticketId1),
+	 *			Firmbook_Ticket::existingTicket('Второй пользователь', 2, $ticketId2),
+	 *			Firmbook_Ticket::existingTicket('Третий пользователь', 3, $ticketId3),
+	 *			Firmbook_Ticket::newTicket('Четвертый пользователь', 4),
+	 *			Firmbook_Ticket::newTicket('Пятый пользователь', 5),
+	 *		));
 	 * @param string $conferenceId	Идентификатор вебинара
 	 * @param array $guestList		Массив содержащий объекты Firmbook_Ticket
-	 * @return Firmbook_Command_Result 
+	 * @return Firmbook_Command_Result Результат выполнения команды 
 	 */
-	public function updateGuestEventList($conferenceId, array $guestList) {		
+	public function updateGuestTickets($conferenceId, array $guestList) {		
 		$command = new Firmbook_Command($this->host,
 				'/Exec/UpdateGuestEventListCommand',
 				$this->privateKey, $this->publicKey,
@@ -93,7 +112,7 @@ class Firmbook_Service {
 	}
 	
 	/**
-	 * Редактировать описание вебинара
+	 * Обновить описание вебинара
 	 * @param string $conferenceId	Идентификатор вебинара
 	 * @param array $conferenceData	массив с данными для создания вебианара
 	 *								обязательные поля:

@@ -23,10 +23,25 @@ class Firmbook_Ticket {
 		);
 	}
 	
-	static public function newTicket($displayName, $tag) {
+	/**
+	 * Создать новый билет для пользователя
+	 * 
+	 * @param string $displayName	Имя пользователя в билете
+	 * @param string $tag			Метка (для внутреннего айди)
+	 * @return Firmbook_Ticket		Билет пользователя
+	 */
+	static public function newTicket($displayName, $tag = null) {
 		return new Firmbook_Ticket($displayName, $tag);
 	}
 	
+	/**
+	 * Создать билет который уже присутствует
+	 * 
+	 * @param string $displayName	Новое имя пользователя
+	 * @param string $tag			Метка (для внутренного айди)
+	 * @param string $id			Идентификатор билета на фирмбуке
+	 * @return Firmbook_Ticket		Билет пользователя
+	 */	
 	static public function existingTicket($displayName, $tag, $id) {
 		return new Firmbook_Ticket($displayName, $tag, $id);
 	}

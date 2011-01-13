@@ -42,11 +42,12 @@ class Firmbook_Command {
 			$request->setHeader($headers);
 			$request->setBody($params['body']);
 			$response = $request->send();
-			if ($response->getStatus() != 200)
-				throw new Exception($response->getReasonPhrase(), $response->getStatus());
-			return new Firmbook_Command_Result($response->getBody());
+//			if ($response->getStatus() != 200)
+//				throw new Exception($response->getReasonPhrase(), $response->getStatus());
+			return new Firmbook_Command_Result(
+					$response->getStatus(), $response->getReasonPhrase(),$response->getBody());
 		} catch (Exception $e) {
-			return new Firmbook_Command_Error($e->getCode(), $e->getMessage());
+			return new Firmbook_Command_Result($e->getCode(), $e->getMessage());
 		}
 	}
 
