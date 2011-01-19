@@ -1,6 +1,6 @@
 <?php
 /**
- * Description of Firmbook_Command_Result
+ * Результат выполнения команды или запроса к Firmbook.ru
  *
  * @author Stas
  */

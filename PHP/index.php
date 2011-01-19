@@ -9,6 +9,7 @@ $firmbook = new Firmbook_Service(array(
 ));
 
 /*
+// Пример создания вебинара на Firmbook.ru который начнется через час
 $result = $firmbook->createConference(array(
 	'title' => 'Тестовое мероприятие',
 	'summary' => 'Краткое описание',
@@ -22,7 +23,8 @@ dump($result);
 */
 
 /*
-$guestResult = $firmbook->updateGuestTickets('', array(
+// Пример обновления списка гостей в вебинаре
+$guestResult = $firmbook->updateGuestTickets('PAcB5ygUGEuM2xH5zsxVCA', array(
 	Firmbook_Ticket::newTicket('Первый человек'),
 	Firmbook_Ticket::newTicket('Второй человек'),
 	Firmbook_Ticket::newTicket('Третий человек', 1),
@@ -30,11 +32,13 @@ $guestResult = $firmbook->updateGuestTickets('', array(
 ));
 dump($guestResult);
 */
-$getTicketsResult = $firmbook->getTickets('', 0, 50);
+
+// Пример получения списка билетов в вебинаре
+$getTicketsResult = $firmbook->getTickets('6kYfk1EzxE_6vhkg_OAeTQ', 0, 50);
 if ($getTicketsResult->isOk()) {
 	// Результат нормальный
-	dump($getTicketsResult->getContent());
-} else {
-	// произошла ошибка
+} else {	
+	// обработка ошибки
 }
+dump($getTicketsResult);
 ?>

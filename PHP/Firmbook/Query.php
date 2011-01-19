@@ -29,7 +29,8 @@ class Firmbook_Query {
 		try {
 			$headers = array(
 				"Accept" => 'application/json',
-				"Host" => $this->host
+				"Host" => $this->host,
+				"Content-type" => "application/x-www-form-urlencoded; charset=utf-8"
 			);
 			$url = "http://".$this->host.$this->query.'?$top='.$this->top.'&$skip='.$this->skip;
 			$request = new HTTP_Request2($url, HTTP_Request2::METHOD_GET);

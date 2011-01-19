@@ -17,8 +17,10 @@ class Firmbook_Service {
 	/**
 	 * Инитиализация сервиса
 	 * @param array $spec	Ассоциативный массив должен содержать
-	 *							publikKey - Публичный ключ
+	 *							publiсKey - Публичный ключ
 	 *							privateKey - Приватный ключ
+	 *						Которые можно найти в личном кабинете в разделе настройки 
+	 *							на сайте Firmbook.ru
 	 */
 	public function __construct(array $spec) {
 		if (array_key_exists('host', $spec))
@@ -85,6 +87,7 @@ class Firmbook_Service {
 	 * @return Firmbook_Command_Result Результат выполнения команды 
 	 */
 	public function updateGuestTickets($conferenceId, array $guestList) {		
+		$this->checkId($conferenceId);
 		$command = new Firmbook_Command($this->host,
 				'/Exec/UpdateGuestEventListCommand',
 				$this->privateKey, $this->publicKey,
@@ -100,10 +103,16 @@ class Firmbook_Service {
 	 * Получить список гостевых билетов
 	 * @param string $conferenceId		Идентификатор вебинара
 	 * @param int $fromIndex			Первый тикет для выборки
-	 * @param int $pageSize				Максимальное количество выбраных тикетов
+	 * @param int $pageSize				Максимальное количество выбраных тикетов (не более 50) 
 	 * @return Firmbook_Command_Result	Результат выполнения запроса 
 	 */
 	public function getTickets($conferenceId, $fromIndex, $pageSize) {
+		$this->checkId($conferenceId);
+		if ($fromIndex < 0)
+			throw new Exception ("First ticket index must be positive");
+		if ($pageSize > 50)
+			throw new Exception ("Page size must be lesser than 50");
+		
 		$query = new Firmbook_Query($this->host,
 				"/data/event/$conferenceId/guestTickets", 
 				$this->privateKey, $this->publicKey,
@@ -146,6 +155,11 @@ class Firmbook_Service {
 				new Firmbook_Serializer_UrlEncode($conferenceData)
 			);		
 		return $command->getResult();		
+	}
+	
+	protected function checkId($id) {
+		if (strlen($id) != 22)
+			throw new Exception("Id is not correct");
 	}
 
 	protected function checkRequiredValue(array $spec, $name, 

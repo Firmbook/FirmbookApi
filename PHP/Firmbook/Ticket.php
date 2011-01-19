@@ -1,6 +1,6 @@
 <?php
 /**
- * Description of Firmbook_Ticket
+ * Билет на вебинар
  *
  * @author Stas
  */
