@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<title>Тестовый UI</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<script type="text/javascript">
+			function getGuestTickets() {
+				$.get('Backend.php', 
+					{
+						'func': 'getTickets',
+						'publicKey': $('input[name="publicKey"]').val(),
+						'privateKey': $('input[name=privateKey]').val(),
+						'conferenceId':  $('input[name=conferenceId]').val()
+					},
+					function (data) {
+						var $guestList = $('#guest-list');
+						$('#guest-counter').text(data.TotalCount);
+						for (var i = 0; i < data.Content.length; i++){ 
+							var item = data.Content[i];
+							$('<div></div>').text(i + '. ' + item['Id'] + ' ' + item['DisplayName'] + ' ' + item['Tag']).appendTo($guestList);
+						}
+					},
+					'json'
+				);
+			}
+			function issueTicket() {
+				$.get('Backend.php', 
+					{
+						'func': 'issueTicket',
+						'publicKey': $('input[name="publicKey"]').val(),
+						'privateKey': $('input[name=privateKey]').val(),
+						'conferenceId':  $('input[name=conferenceId]').val(),
+						'displayName': $('input[name=displayName]').val(),
+						'tag': $('input[name=tag]').val()
+					},
+					function (data) {
+					},
+					'json'
+				);
+			}
+		</script>
+	</head>
+	<body>
+		<form>
+			Публичный ключ: <input type="text" name="publicKey" size="40"/>
+			Приватный ключ: <input type="text" name="privateKey" size="40"/>
+		</form>
+		<form>
+			Идентификатор вебинара: <input type="text" name="conferenceId"/>
+		</form>
+		<div>
+			Добавить билет: <input type="text" name="displayName"/>
+			Тег: <input type="text" name="tag"/>
+			<input type="button" name="issueTicket" value="Создать" onclick="issueTicket()"/>
+		</div>
+		<div>
+			<div>
+				Список гостей: 
+				<span id="guest-counter"></span>
+				<input type="button" name="getTickets" value="Получить" onclick="getGuestTickets()"/>
+			</div>
+			<div id="guest-list">
+			</div>
+		</div>
+	</body>
+</html>

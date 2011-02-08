@@ -100,6 +100,28 @@ class Firmbook_Service {
 	}
 	
 	/**
+	 * Создает тикет для указанного вебинара
+	 * 
+	 * @param string $conferenceId		Идентифкатор вебианра
+	 * @param string $displayName		Имя пользователя для которого требуется создать билет
+	 * @param string $tag				Тег билета(сделан для вашего ID в базе)
+	 * @return Firmbook_Command_Result	Результат выполнения запроса
+	 */	
+	public function issueTicket($conferenceId, $displayName, $tag = null) {
+		$this->checkId($conferenceId);
+		$command = new Firmbook_Command($this->host,
+				'/Exec/IssueGuestTicketCommand',
+				$this->privateKey, $this->publicKey,
+				new Firmbook_Serializer_UrlEncode(array(
+					'conferenceId' => $conferenceId,
+					'displayName' => $displayName,
+					'tag' => $tag
+				))
+			);
+		return $command->getResult();
+	}
+	
+	/**
 	 * Получить список гостевых билетов
 	 * @param string $conferenceId		Идентификатор вебинара
 	 * @param int $fromIndex			Первый тикет для выборки
