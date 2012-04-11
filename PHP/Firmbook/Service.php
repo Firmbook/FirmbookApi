@@ -179,6 +179,18 @@ class Firmbook_Service {
 		return $command->getResult();		
 	}
 	
+	public function finishConference($conferenceId) {
+        $this->checkId($conferenceId);
+        $command = new Firmbook_Command($this->host,
+                '/Exec/MarkConferenceAsFinishedCommand',
+                $this->privateKey, $this->publicKey,
+                new Firmbook_Serializer_UrlEncode(array(
+                    'conferenceId' => $conferenceId
+                ))
+            );
+        return $command->getResult();
+    }	
+	
 	protected function checkId($id) {
 		if (strlen($id) != 22)
 			throw new Exception("Id is not correct");
