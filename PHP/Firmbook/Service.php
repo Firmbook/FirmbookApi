@@ -9,13 +9,14 @@ class Firmbook_Service {
 	const TYPE_BOOLEAN = 'boolean';
 	const TYPE_DATE	= 'date';
 	const TYPE_ID_ARRAY = 'array of id';
-	
+	const TYPE_INTEGER = 'integer';
+
 	protected $host = 'firmbook.ru';
 	protected $publicKey;
 	protected $privateKey;
 	
 	/**
-	 * Инитиализация сервиса
+	 * Инициализация сервиса
 	 * @param array $spec	Ассоциативный массив должен содержать
 	 *							publiсKey - Публичный ключ
 	 *							privateKey - Приватный ключ
@@ -42,6 +43,10 @@ class Firmbook_Service {
 	 *									Фирмбук, приглашенных на вебинар
 	 *								coHostIds - Массив строк с идентификаторами пользователей
 	 *									Фирмбук, соведущих этого вебинара
+	 * 								durationHours
+	 * 									длительность вебинара (часы) – от 0 до 59
+	 * 								durationMinutes
+	 * 									длительность вебинара (минуты) – от 0 до 59
 	 * @return Firmbook_Command_Result Результат выполнения команды
 	 */
 	public function createConference(array $conferenceData) {
@@ -52,7 +57,8 @@ class Firmbook_Service {
 		$this->checkRequiredValue($conferenceData, "startDate", Firmbook_Service::TYPE_DATE);
 		$this->checkRequiredValue($conferenceData, "participantIds", Firmbook_Service::TYPE_ID_ARRAY);
 		$this->checkRequiredValue($conferenceData, "coHostIds", Firmbook_Service::TYPE_ID_ARRAY);		
-		array_merge($conferenceData['coHostIds'], $conferenceData['participantIds']);
+		$this->checkRequiredValue($conferenceData, "durationHours", Firmbook_Service::TYPE_INTEGER);
+		$this->checkRequiredValue($conferenceData, "durationMinutes", Firmbook_Service::TYPE_INTEGER);
 		$command = new Firmbook_Command($this->host,
 				'/Exec/CreateConferenceCommand',
 				$this->privateKey, $this->publicKey, 
@@ -158,6 +164,10 @@ class Firmbook_Service {
 	 *									Фирмбук, соведущих этого вебинара
 	 *								removedParticipantIds - Массив строк-идентификаторов пользователей
 	 *									Фирмбук, билет которых должен быть анулирован
+	 * 								durationHours
+	 * 									длительность вебинара (часы) – от 0 до 59
+	 * 								durationMinutes
+	 * 									длительность вебинара (минуты) – от 0 до 59
 	 * @return Firmbook_Command_Result	Результат выполнения запроса 
 	 */
 	public function modifyConference($conferenceId, array $conferenceData) {
@@ -169,27 +179,33 @@ class Firmbook_Service {
 		$this->checkRequiredValue($conferenceData, "participantIds", Firmbook_Service::TYPE_ID_ARRAY);
 		$this->checkRequiredValue($conferenceData, "coHostIds", Firmbook_Service::TYPE_ID_ARRAY);				
 		$this->checkRequiredValue($conferenceData, "removedParticipantIds", Firmbook_Service::TYPE_ID_ARRAY);
-		array_merge($conferenceData['coHostIds'], $conferenceData['participantIds']);
-		array_merge($conferenceData, array('conferenceId' => $conferenceId));
+		$this->checkRequiredValue($conferenceData, "durationHours", Firmbook_Service::TYPE_INTEGER);
+		$this->checkRequiredValue($conferenceData, "durationMinutes", Firmbook_Service::TYPE_INTEGER);
+		$conferenceData['conferenceId'] = $conferenceId;
 		$command = new Firmbook_Command($this->host,
 				'/Exec/ModifyConferenceInfoCommand',
 				$this->privateKey, $this->publicKey, 
 				new Firmbook_Serializer_UrlEncode($conferenceData)
-			);		
+			);	
 		return $command->getResult();		
 	}
 	
+	/**
+	 * Завершить вебинар и поместить его в архив
+	 * @param string $conferenceId	Идентификатор вебинара
+	 * @return Firmbook_Command_Result	Результат выполнения запроса 
+	 */
 	public function finishConference($conferenceId) {
-        $this->checkId($conferenceId);
-        $command = new Firmbook_Command($this->host,
-                '/Exec/MarkConferenceAsFinishedCommand',
-                $this->privateKey, $this->publicKey,
-                new Firmbook_Serializer_UrlEncode(array(
-                    'conferenceId' => $conferenceId
-                ))
-            );
-        return $command->getResult();
-    }	
+		$this->checkId($conferenceId);
+		$command = new Firmbook_Command($this->host,
+				'/Exec/MarkConferenceAsFinishedCommand',
+				$this->privateKey, $this->publicKey, 
+				new Firmbook_Serializer_UrlEncode(array(
+					'conferenceId' => $conferenceId)
+				)
+			);	
+		return $command->getResult();
+	}
 	
 	protected function checkId($id) {
 		if (strlen($id) != 22)
@@ -205,10 +221,10 @@ class Firmbook_Service {
 		if ($requiredType == Firmbook_Service::TYPE_STRING) {
 			if (!is_string($value))
 				throw new Exception("Parameter $name should be $requiredType."); 
-			if (strlen($value) < $minLength)
+			if (strlen($value, 'UTF-8') < $minLength)
 				throw new Exception("Parameter $name should be minimum $minLength length."); 
-			if (strlen($value) > $maxLength)
-				throw new Exception("Parameter $name should be maximum $minLength length."); 
+			if (strlen($value, 'UTF-8') > $maxLength)
+				throw new Exception("Parameter $name should be maximum $maxLength length."); 
 		}
 		if ($requiredType == Firmbook_Service::TYPE_BOOLEAN && !is_bool($value))
 			throw new Exception ("Parameter $name should be $requiredType.");
@@ -216,6 +232,8 @@ class Firmbook_Service {
 			throw new Exception("Parameter $name should be instanceof DateTime.");
 		if ($requiredType == Firmbook_Service::TYPE_ID_ARRAY && !is_array($value))
 			throw new Exception("Parameter $name should be $requiredType format.");
+		if ($requiredType == Firmbook_Service::TYPE_INTEGER && !is_numeric($value))
+			throw new Exception ("Parameter $name should be $requiredType.");
 		return $value;
 	}
 }
